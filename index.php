@@ -1,3 +1,3 @@
 <?php
 
-require_once __DIR__ . '/routers/index.php';
+require_once __DIR__ . '/routes/api.php';
