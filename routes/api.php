@@ -9,7 +9,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 $uri    = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $uri    = rtrim($uri, '/');
 
-// ── Clientes ──────────────────────────────────────────────
+// -- Clientes
 $clients = new ClientController();
 
 if ($method === 'GET' && preg_match('#^/clients$#', $uri)) {
@@ -21,7 +21,7 @@ if ($method === 'GET' && preg_match('#^/clients$#', $uri)) {
 } elseif ($method === 'POST' && preg_match('#^/clients$#', $uri)) {
     $clients->createClient();
 
-// ── Productos ─────────────────────────────────────────────
+// -- Productos
 } elseif ($method === 'GET' && preg_match('#^/products$#', $uri)) {
     (new ProductController())->getProducts();
 
