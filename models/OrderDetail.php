@@ -3,10 +3,10 @@
 require_once __DIR__ . '/../config/Database.php';
 
 class OrderDetail {
-    private PDO $db;
+    private $db;
 
-    public function __construct(?PDO $db = null) {
-        $this->db = $db ?? (new Database())->connect();
+    public function __construct() {
+        $this->db = (new Database())->connect();
     }
 
     public function create(int $idPedido, int $idProducto, int $cantidad, float $precio): void {

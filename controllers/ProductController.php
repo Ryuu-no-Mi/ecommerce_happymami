@@ -1,9 +1,10 @@
 <?php
 
+require_once __DIR__ . '/BaseController.php';
 require_once __DIR__ . '/../models/Product.php';
 
-class ProductController {
-    private Product $model;
+class ProductController extends BaseController {
+    private $model;
 
     public function __construct() {
         $this->model = new Product();
@@ -24,7 +25,7 @@ class ProductController {
     }
 
     public function createProduct(): void {
-        $body = json_decode(file_get_contents('php://input'), true);
+        $body = $this->getJsonInput();
 
         $nombre      = trim($body['nombre']      ?? '');
         $descripcion = trim($body['descripcion'] ?? '');
@@ -57,7 +58,7 @@ class ProductController {
             return;
         }
 
-        $body = json_decode(file_get_contents('php://input'), true);
+        $body = $this->getJsonInput();
 
         $nombre      = trim($body['nombre']      ?? '');
         $descripcion = trim($body['descripcion'] ?? '');
@@ -83,9 +84,4 @@ class ProductController {
         $this->json(['updated' => $updated, 'message' => 'Producto actualizado'], 200);
     }
 
-    private function json(mixed $data, int $status = 200): void {
-        http_response_code($status);
-        header('Content-Type: application/json; charset=UTF-8');
-        echo json_encode($data, JSON_UNESCAPED_UNICODE);
-    }
 }

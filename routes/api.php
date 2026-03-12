@@ -1,8 +1,8 @@
 <?php
 
-require_once __DIR__ . '/../controller/ClientController.php';
-require_once __DIR__ . '/../controller/ProductController.php';
-require_once __DIR__ . '/../controller/OrderController.php';
+require_once __DIR__ . '/../controllers/ClientController.php';
+require_once __DIR__ . '/../controllers/ProductController.php';
+require_once __DIR__ . '/../controllers/OrderController.php';
 
 header('Content-Type: application/json; charset=UTF-8');
 
@@ -12,6 +12,8 @@ $uri    = rtrim($uri, '/');
 
 // -- Clientes
 $clients = new ClientController();
+$products = new ProductController();
+$orders = new OrderController();
 
 if ($method === 'GET' && preg_match('#^/clients$#', $uri)) {
     $clients->getClients();
@@ -24,26 +26,26 @@ if ($method === 'GET' && preg_match('#^/clients$#', $uri)) {
 
 // -- Productos
 } elseif ($method === 'GET' && preg_match('#^/products$#', $uri)) {
-    (new ProductController())->getProducts();
+    $products->getProducts();
 
 } elseif ($method === 'GET' && preg_match('#^/products/(\d+)$#', $uri, $m)) {
-    (new ProductController())->getProduct((int) $m[1]);
+    $products->getProduct((int) $m[1]);
 
 } elseif ($method === 'POST' && preg_match('#^/products$#', $uri)) {
-    (new ProductController())->createProduct();
+    $products->createProduct();
 
 } elseif ($method === 'PUT' && preg_match('#^/products/(\d+)$#', $uri, $m)) {
-    (new ProductController())->updateProduct((int) $m[1]);
+    $products->updateProduct((int) $m[1]);
 
 // -- Pedidos
 } elseif ($method === 'GET' && preg_match('#^/orders$#', $uri)) {
-    (new OrderController())->getOrders();
+    $orders->getOrders();
 
 } elseif ($method === 'GET' && preg_match('#^/orders/(\d+)$#', $uri, $m)) {
-    (new OrderController())->getOrder((int) $m[1]);
+    $orders->getOrder((int) $m[1]);
 
 } elseif ($method === 'POST' && preg_match('#^/orders$#', $uri)) {
-    (new OrderController())->createOrder();
+    $orders->createOrder();
 
 } else {
     http_response_code(404);

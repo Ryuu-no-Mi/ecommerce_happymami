@@ -1,9 +1,10 @@
 <?php
 
+require_once __DIR__ . '/BaseController.php';
 require_once __DIR__ . '/../models/Order.php';
 
-class OrderController {
-    private Order $model;
+class OrderController extends BaseController {
+    private $model;
 
     public function __construct() {
         $this->model = new Order();
@@ -26,7 +27,7 @@ class OrderController {
     }
 
     public function createOrder(): void {
-        $body = json_decode(file_get_contents('php://input'), true);
+        $body = $this->getJsonInput();
 
         $clientId = (int) ($body['client_id'] ?? 0);
         $notas = trim($body['notas'] ?? '');
@@ -45,14 +46,8 @@ class OrderController {
             $this->json(['error' => $e->getMessage()], 422);
         } catch (RuntimeException $e) {
             $this->json(['error' => $e->getMessage()], 404);
-        } catch (Throwable $e) {
-            $this->json(['error' => 'No se pudo crear el pedido'], 500);
+        } catch (Exception $e) {
+            $this->json(['error' => 'No se pudo crear el pedido'], 422);
         }
-    }
-
-    private function json(mixed $data, int $status = 200): void {
-        http_response_code($status);
-        header('Content-Type: application/json; charset=UTF-8');
-        echo json_encode($data, JSON_UNESCAPED_UNICODE);
     }
 }

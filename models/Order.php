@@ -4,12 +4,10 @@ require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/OrderDetail.php';
 
 class Order {
-    private PDO $db;
-    private OrderDetail $detailModel;
+    private $db;
 
     public function __construct() {
         $this->db = (new Database())->connect();
-        $this->detailModel = new OrderDetail($this->db);
     }
 
     public function getAll(): array {
@@ -17,7 +15,7 @@ class Order {
         return $stmt->fetchAll();
     }
 
-    public function getById(int $id): array|false {
+    public function getById(int $id) {
         $stmt = $this->db->prepare('SELECT * FROM pedidos WHERE id = :id LIMIT 1');
         $stmt->execute([':id' => $id]);
         $order = $stmt->fetch();
@@ -26,7 +24,8 @@ class Order {
             return false;
         }
 
-        $order['productos'] = $this->detailModel->getByOrderId($id);
+        $detailModel = new OrderDetail();
+        $order['productos'] = $detailModel->getByOrderId($id);
         return $order;
     }
 
@@ -47,8 +46,12 @@ class Order {
 
             $idPedido = (int) $this->db->lastInsertId();
 
+            // Guardamos el precio actual del producto en el detalle del pedido.
             $sqlPrice = 'SELECT precio FROM products WHERE id = :id_producto LIMIT 1 FOR UPDATE';
             $stmtPrice = $this->db->prepare($sqlPrice);
+
+            $sqlDetail = 'INSERT INTO detalle_pedidos (id_pedido, id_producto, cantidad, precio) VALUES (:id_pedido, :id_producto, :cantidad, :precio)';
+            $stmtDetail = $this->db->prepare($sqlDetail);
 
             foreach ($productos as $item) {
                 $idProducto = (int) ($item['id_producto'] ?? 0);
@@ -66,13 +69,18 @@ class Order {
                 }
 
                 $precioActual = (float) $product['precio'];
-                $this->detailModel->create($idPedido, $idProducto, $cantidad, $precioActual);
+                $stmtDetail->execute([
+                    ':id_pedido' => $idPedido,
+                    ':id_producto' => $idProducto,
+                    ':cantidad' => $cantidad,
+                    ':precio' => $precioActual,
+                ]);
             }
 
             $this->db->commit();
             return $idPedido;
 
-        } catch (Throwable $e) {
+        } catch (Exception $e) {
             if ($this->db->inTransaction()) {
                 $this->db->rollBack();
             }

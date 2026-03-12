@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../config/Database.php';
 
 class Product {
-    private PDO $db;
+    private $db;
 
     public function __construct() {
         $this->db = (new Database())->connect();
@@ -14,7 +14,7 @@ class Product {
         return $stmt->fetchAll();
     }
 
-    public function getById(int $id): array|false {
+    public function getById(int $id) {
         $stmt = $this->db->prepare('SELECT * FROM products WHERE id = :id LIMIT 1');
         $stmt->execute([':id' => $id]);
         return $stmt->fetch();

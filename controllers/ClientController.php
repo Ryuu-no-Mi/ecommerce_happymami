@@ -1,9 +1,10 @@
 <?php
 
+require_once __DIR__ . '/BaseController.php';
 require_once __DIR__ . '/../models/Client.php';
 
-class ClientController {
-    private Client $model;
+class ClientController extends BaseController {
+    private $model;
 
     public function __construct() {
         $this->model = new Client();
@@ -24,7 +25,7 @@ class ClientController {
     }
 
     public function createClient(): void {
-        $body = json_decode(file_get_contents('php://input'), true);
+        $body = $this->getJsonInput();
 
         $nombre    = trim($body['nombre']    ?? '');
         $email     = trim($body['email']     ?? '');
@@ -45,9 +46,4 @@ class ClientController {
         $this->json(['id' => $id, 'message' => 'Cliente creado'], 201);
     }
 
-    private function json(mixed $data, int $status = 200): void {
-        http_response_code($status);
-        header('Content-Type: application/json; charset=UTF-8');
-        echo json_encode($data, JSON_UNESCAPED_UNICODE);
-    }
 }
