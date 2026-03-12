@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../controller/ClientController.php';
 require_once __DIR__ . '/../controller/ProductController.php';
+require_once __DIR__ . '/../controller/OrderController.php';
 
 header('Content-Type: application/json; charset=UTF-8');
 
@@ -33,6 +34,16 @@ if ($method === 'GET' && preg_match('#^/clients$#', $uri)) {
 
 } elseif ($method === 'PUT' && preg_match('#^/products/(\d+)$#', $uri, $m)) {
     (new ProductController())->updateProduct((int) $m[1]);
+
+// -- Pedidos
+} elseif ($method === 'GET' && preg_match('#^/orders$#', $uri)) {
+    (new OrderController())->getOrders();
+
+} elseif ($method === 'GET' && preg_match('#^/orders/(\d+)$#', $uri, $m)) {
+    (new OrderController())->getOrder((int) $m[1]);
+
+} elseif ($method === 'POST' && preg_match('#^/orders$#', $uri)) {
+    (new OrderController())->createOrder();
 
 } else {
     http_response_code(404);
