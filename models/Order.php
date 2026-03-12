@@ -11,12 +11,12 @@ class Order {
     }
 
     public function getAll(): array {
-        $stmt = $this->db->query('SELECT * FROM pedidos ORDER BY id DESC');
+        $stmt = $this->db->query('SELECT * FROM orders ORDER BY id DESC');
         return $stmt->fetchAll();
     }
 
     public function getById(int $id) {
-        $stmt = $this->db->prepare('SELECT * FROM pedidos WHERE id = :id LIMIT 1');
+        $stmt = $this->db->prepare('SELECT * FROM orders WHERE id = :id LIMIT 1');
         $stmt->execute([':id' => $id]);
         $order = $stmt->fetch();
 
@@ -25,60 +25,60 @@ class Order {
         }
 
         $detailModel = new OrderDetail();
-        $order['productos'] = $detailModel->getByOrderId($id);
+        $order['items'] = $detailModel->getByOrderId($id);
         return $order;
     }
 
-    public function create(int $client_id, string $notas, array $productos): int {
-        if (count($productos) === 0) {
-            throw new InvalidArgumentException('El pedido debe tener al menos un producto.');
+    public function create(int $clientId, string $notes, array $items): int {
+        if (count($items) === 0) {
+            throw new InvalidArgumentException('The order must contain at least one item.');
         }
 
         $this->db->beginTransaction();
 
         try {
-            $sqlOrder = 'INSERT INTO pedidos (client_id, notas) VALUES (:client_id, :notas)';
+            $sqlOrder = 'INSERT INTO orders (client_id, notes) VALUES (:client_id, :notes)';
             $stmtOrder = $this->db->prepare($sqlOrder);
             $stmtOrder->execute([
-                ':client_id' => $client_id,
-                ':notas'     => $notas,
+                ':client_id' => $clientId,
+                ':notes'     => $notes,
             ]);
 
-            $idPedido = (int) $this->db->lastInsertId();
+            $orderId = (int) $this->db->lastInsertId();
 
-            // Guardamos el precio actual del producto en el detalle del pedido.
-            $sqlPrice = 'SELECT precio FROM products WHERE id = :id_producto LIMIT 1 FOR UPDATE';
+            // Save the current product price in the order detail.
+            $sqlPrice = 'SELECT price FROM products WHERE id = :product_id LIMIT 1 FOR UPDATE';
             $stmtPrice = $this->db->prepare($sqlPrice);
 
-            $sqlDetail = 'INSERT INTO detalle_pedidos (id_pedido, id_producto, cantidad, precio) VALUES (:id_pedido, :id_producto, :cantidad, :precio)';
+            $sqlDetail = 'INSERT INTO order_items (order_id, product_id, quantity, purchase_price) VALUES (:order_id, :product_id, :quantity, :purchase_price)';
             $stmtDetail = $this->db->prepare($sqlDetail);
 
-            foreach ($productos as $item) {
-                $idProducto = (int) ($item['id_producto'] ?? 0);
-                $cantidad = (int) ($item['cantidad'] ?? 0);
+            foreach ($items as $item) {
+                $productId = (int) ($item['product_id'] ?? 0);
+                $quantity = (int) ($item['quantity'] ?? 0);
 
-                if ($idProducto <= 0 || $cantidad <= 0) {
-                    throw new InvalidArgumentException('Cada item debe incluir id_producto y cantidad válidos.');
+                if ($productId <= 0 || $quantity <= 0) {
+                    throw new InvalidArgumentException('Each item must include a valid product_id and quantity.');
                 }
 
-                $stmtPrice->execute([':id_producto' => $idProducto]);
+                $stmtPrice->execute([':product_id' => $productId]);
                 $product = $stmtPrice->fetch();
 
                 if ($product === false) {
-                    throw new RuntimeException("Producto no encontrado: {$idProducto}");
+                    throw new RuntimeException("Product not found: {$productId}");
                 }
 
-                $precioActual = (float) $product['precio'];
+                $currentPrice = (float) $product['price'];
                 $stmtDetail->execute([
-                    ':id_pedido' => $idPedido,
-                    ':id_producto' => $idProducto,
-                    ':cantidad' => $cantidad,
-                    ':precio' => $precioActual,
+                    ':order_id' => $orderId,
+                    ':product_id' => $productId,
+                    ':quantity' => $quantity,
+                    ':purchase_price' => $currentPrice,
                 ]);
             }
 
             $this->db->commit();
-            return $idPedido;
+            return $orderId;
 
         } catch (Exception $e) {
             if ($this->db->inTransaction()) {

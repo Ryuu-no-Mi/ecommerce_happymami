@@ -10,11 +10,11 @@ $method = $_SERVER['REQUEST_METHOD'];
 $uri    = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $uri    = rtrim($uri, '/');
 
-// -- Clientes
 $clients = new ClientController();
 $products = new ProductController();
 $orders = new OrderController();
 
+// -- Clients
 if ($method === 'GET' && preg_match('#^/clients$#', $uri)) {
     $clients->getClients();
 
@@ -24,7 +24,7 @@ if ($method === 'GET' && preg_match('#^/clients$#', $uri)) {
 } elseif ($method === 'POST' && preg_match('#^/clients$#', $uri)) {
     $clients->createClient();
 
-// -- Productos
+// -- Products
 } elseif ($method === 'GET' && preg_match('#^/products$#', $uri)) {
     $products->getProducts();
 
@@ -37,7 +37,7 @@ if ($method === 'GET' && preg_match('#^/clients$#', $uri)) {
 } elseif ($method === 'PUT' && preg_match('#^/products/(\d+)$#', $uri, $m)) {
     $products->updateProduct((int) $m[1]);
 
-// -- Pedidos
+// -- Orders
 } elseif ($method === 'GET' && preg_match('#^/orders$#', $uri)) {
     $orders->getOrders();
 

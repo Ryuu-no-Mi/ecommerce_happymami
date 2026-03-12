@@ -20,25 +20,25 @@ class Product {
         return $stmt->fetch();
     }
 
-    public function create(string $nombre, string $descripcion, float $precio, int $stock): int {
-        $sql  = 'INSERT INTO products (nombre, descripcion, precio, stock) VALUES (:nombre, :descripcion, :precio, :stock)';
+    public function create(string $name, string $description, float $price, int $stock): int {
+        $sql  = 'INSERT INTO products (name, description, price, stock) VALUES (:name, :description, :price, :stock)';
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
-            ':nombre'      => $nombre,
-            ':descripcion' => $descripcion,
-            ':precio'      => $precio,
+            ':name'        => $name,
+            ':description' => $description,
+            ':price'       => $price,
             ':stock'       => $stock,
         ]);
         return (int) $this->db->lastInsertId();
     }
 
-    public function update(int $id, string $nombre, string $descripcion, float $precio, int $stock): bool {
-        $sql  = 'UPDATE products SET nombre = :nombre, descripcion = :descripcion, precio = :precio, stock = :stock WHERE id = :id';
+    public function update(int $id, string $name, string $description, float $price, int $stock): bool {
+        $sql  = 'UPDATE products SET name = :name, description = :description, price = :price, stock = :stock WHERE id = :id';
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
-            ':nombre'      => $nombre,
-            ':descripcion' => $descripcion,
-            ':precio'      => $precio,
+            ':name'        => $name,
+            ':description' => $description,
+            ':price'       => $price,
             ':stock'       => $stock,
             ':id'          => $id,
         ]);

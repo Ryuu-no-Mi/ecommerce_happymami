@@ -18,7 +18,7 @@ class ClientController extends BaseController {
     public function getClient(int $id): void {
         $client = $this->model->getById($id);
         if ($client === false) {
-            $this->json(['error' => 'Cliente no encontrado'], 404);
+            $this->json(['error' => 'Client not found'], 404);
             return;
         }
         $this->json($client, 200);
@@ -27,23 +27,23 @@ class ClientController extends BaseController {
     public function createClient(): void {
         $body = $this->getJsonInput();
 
-        $nombre    = trim($body['nombre']    ?? '');
-        $email     = trim($body['email']     ?? '');
-        $telefono  = trim($body['telefono']  ?? '');
-        $direccion = trim($body['direccion'] ?? '');
+        $name = trim($body['name'] ?? '');
+        $email = trim($body['email'] ?? '');
+        $phone = trim($body['phone'] ?? '');
+        $address = trim($body['address'] ?? '');
 
-        if ($nombre === '' || $email === '') {
-            $this->json(['error' => 'nombre y email son obligatorios'], 422);
+        if ($name === '' || $email === '') {
+            $this->json(['error' => 'name and email are required'], 422);
             return;
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $this->json(['error' => 'email no válido'], 422);
+            $this->json(['error' => 'invalid email'], 422);
             return;
         }
 
-        $id = $this->model->create($nombre, $email, $telefono, $direccion);
-        $this->json(['id' => $id, 'message' => 'Cliente creado'], 201);
+        $id = $this->model->create($name, $email, $phone, $address);
+        $this->json(['id' => $id, 'message' => 'Client created'], 201);
     }
 
 }

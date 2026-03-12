@@ -19,7 +19,7 @@ class OrderController extends BaseController {
         $order = $this->model->getById($id);
 
         if ($order === false) {
-            $this->json(['error' => 'Pedido no encontrado'], 404);
+            $this->json(['error' => 'Order not found'], 404);
             return;
         }
 
@@ -30,16 +30,16 @@ class OrderController extends BaseController {
         $body = $this->getJsonInput();
 
         $clientId = (int) ($body['client_id'] ?? 0);
-        $notas = trim($body['notas'] ?? '');
-        $productos = $body['productos'] ?? [];
+        $notes = trim($body['notes'] ?? '');
+        $items = $body['items'] ?? [];
 
-        if ($clientId <= 0 || !is_array($productos) || count($productos) === 0) {
-            $this->json(['error' => 'client_id y productos son obligatorios'], 422);
+        if ($clientId <= 0 || !is_array($items) || count($items) === 0) {
+            $this->json(['error' => 'client_id and items are required'], 422);
             return;
         }
 
         try {
-            $id = $this->model->create($clientId, $notas, $productos);
+            $id = $this->model->create($clientId, $notes, $items);
             $created = $this->model->getById($id);
             $this->json($created, 201);
         } catch (InvalidArgumentException $e) {
@@ -47,7 +47,7 @@ class OrderController extends BaseController {
         } catch (RuntimeException $e) {
             $this->json(['error' => $e->getMessage()], 404);
         } catch (Exception $e) {
-            $this->json(['error' => 'No se pudo crear el pedido'], 422);
+            $this->json(['error' => 'Could not create order'], 422);
         }
     }
 }

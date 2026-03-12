@@ -9,21 +9,21 @@ class OrderDetail {
         $this->db = (new Database())->connect();
     }
 
-    public function create(int $idPedido, int $idProducto, int $cantidad, float $precio): void {
-        $sql = 'INSERT INTO detalle_pedidos (id_pedido, id_producto, cantidad, precio) VALUES (:id_pedido, :id_producto, :cantidad, :precio)';
+    public function create(int $orderId, int $productId, int $quantity, float $purchasePrice): void {
+        $sql = 'INSERT INTO order_items (order_id, product_id, quantity, purchase_price) VALUES (:order_id, :product_id, :quantity, :purchase_price)';
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
-            ':id_pedido'   => $idPedido,
-            ':id_producto' => $idProducto,
-            ':cantidad'    => $cantidad,
-            ':precio'      => $precio,
+            ':order_id'      => $orderId,
+            ':product_id'    => $productId,
+            ':quantity'      => $quantity,
+            ':purchase_price' => $purchasePrice,
         ]);
     }
 
-    public function getByOrderId(int $idPedido): array {
-        $sql = 'SELECT * FROM detalle_pedidos WHERE id_pedido = :id_pedido';
+    public function getByOrderId(int $orderId): array {
+        $sql = 'SELECT * FROM order_items WHERE order_id = :order_id';
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id_pedido' => $idPedido]);
+        $stmt->execute([':order_id' => $orderId]);
         return $stmt->fetchAll();
     }
 }

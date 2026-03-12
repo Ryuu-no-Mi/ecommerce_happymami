@@ -20,14 +20,14 @@ class Client {
         return $stmt->fetch();
     }
 
-    public function create(string $nombre, string $email, string $telefono, string $direccion): int {
-        $sql  = 'INSERT INTO clients (nombre, email, telefono, direccion) VALUES (:nombre, :email, :telefono, :direccion)';
+    public function create(string $name, string $email, string $phone, string $address): int {
+        $sql  = 'INSERT INTO clients (name, email, phone, address) VALUES (:name, :email, :phone, :address)';
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
-            ':nombre'    => $nombre,
-            ':email'     => $email,
-            ':telefono'  => $telefono,
-            ':direccion' => $direccion,
+            ':name'    => $name,
+            ':email'   => $email,
+            ':phone'   => $phone,
+            ':address' => $address,
         ]);
         return (int) $this->db->lastInsertId();
     }

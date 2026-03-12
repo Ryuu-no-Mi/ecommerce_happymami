@@ -1,0 +1,26 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# PHP / dependencies
+/vendor/
+composer.lock
+
+# Logs and cache
+*.log
+*.cache
+/tmp/
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# Runtime files
+*.pid
