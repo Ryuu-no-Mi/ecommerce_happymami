@@ -18,6 +18,21 @@ $clients = new ClientController($db);
 $products = new ProductController($db);
 $orders = new OrderController($db);
 
+// -- Home Route
+if ($method === 'GET' && $uri === '') {
+    http_response_code(200);
+    echo json_encode([
+        'message' => 'Bienvenido a HappyMami',
+        'version' => '1.0.0',
+        'endpoints' => [
+            'clients' => '/clients',
+            'products' => '/products',
+            'orders' => '/orders'
+        ]
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 // -- Clients
 if ($method === 'GET' && preg_match('#^/clients$#', $uri)) {
     $clients->getClients();
