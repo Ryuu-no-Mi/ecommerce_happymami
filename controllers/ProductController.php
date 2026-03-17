@@ -3,19 +3,24 @@
 require_once __DIR__ . '/BaseController.php';
 require_once __DIR__ . '/../models/Product.php';
 
-class ProductController extends BaseController {
-    private $model;
+class ProductController extends BaseController
+{
+    private Product $model;
 
-    public function __construct() {
-        $this->model = new Product();
+    public function __construct(PDO $db)
+    {
+        parent::__construct($db);
+        $this->model = new Product($db);
     }
 
-    public function getProducts(): void {
+    public function getProducts(): void
+    {
         $products = $this->model->getAll();
         $this->json($products, 200);
     }
 
-    public function getProduct(int $id): void {
+    public function getProduct(int $id): void
+    {
         $product = $this->model->getById($id);
         if ($product === false) {
             $this->json(['error' => 'Product not found'], 404);
@@ -24,7 +29,8 @@ class ProductController extends BaseController {
         $this->json($product, 200);
     }
 
-    public function createProduct(): void {
+    public function createProduct(): void
+    {
         $body = $this->getJsonInput();
 
         $name = trim($body['name'] ?? '');
@@ -51,7 +57,8 @@ class ProductController extends BaseController {
         $this->json(['id' => $id, 'message' => 'Product created'], 201);
     }
 
-    public function updateProduct(int $id): void {
+    public function updateProduct(int $id): void
+    {
         $existing = $this->model->getById($id);
         if ($existing === false) {
             $this->json(['error' => 'Product not found'], 404);
@@ -83,5 +90,4 @@ class ProductController extends BaseController {
         $updated = $this->model->update($id, $name, $description, (float) $price, (int) $stock);
         $this->json(['updated' => $updated, 'message' => 'Product updated'], 200);
     }
-
 }

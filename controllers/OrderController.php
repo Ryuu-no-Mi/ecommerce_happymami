@@ -3,19 +3,24 @@
 require_once __DIR__ . '/BaseController.php';
 require_once __DIR__ . '/../models/Order.php';
 
-class OrderController extends BaseController {
-    private $model;
+class OrderController extends BaseController
+{
+    private Order $model;
 
-    public function __construct() {
-        $this->model = new Order();
+    public function __construct(PDO $db)
+    {
+        parent::__construct($db);
+        $this->model = new Order($db);
     }
 
-    public function getOrders(): void {
+    public function getOrders(): void
+    {
         $orders = $this->model->getAll();
         $this->json($orders, 200);
     }
 
-    public function getOrder(int $id): void {
+    public function getOrder(int $id): void
+    {
         $order = $this->model->getById($id);
 
         if ($order === false) {
@@ -26,7 +31,8 @@ class OrderController extends BaseController {
         $this->json($order, 200);
     }
 
-    public function createOrder(): void {
+    public function createOrder(): void
+    {
         $body = $this->getJsonInput();
 
         $clientId = (int) ($body['client_id'] ?? 0);

@@ -3,19 +3,23 @@
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/OrderDetail.php';
 
-class Order {
-    private $db;
+class Order
+{
+    private PDO $db;
 
-    public function __construct() {
-        $this->db = (new Database())->connect();
+    public function __construct(PDO $db)
+    {
+        $this->db = $db;
     }
 
-    public function getAll(): array {
+    public function getAll(): array
+    {
         $stmt = $this->db->query('SELECT * FROM orders ORDER BY id DESC');
         return $stmt->fetchAll();
     }
 
-    public function getById(int $id) {
+    public function getById(int $id)
+    {
         $stmt = $this->db->prepare('SELECT * FROM orders WHERE id = :id LIMIT 1');
         $stmt->execute([':id' => $id]);
         $order = $stmt->fetch();
@@ -24,12 +28,13 @@ class Order {
             return false;
         }
 
-        $detailModel = new OrderDetail();
+        $detailModel = new OrderDetail($this->db);
         $order['items'] = $detailModel->getByOrderId($id);
         return $order;
     }
 
-    public function create(int $clientId, string $notes, array $items): int {
+    public function create(int $clientId, string $notes, array $items): int
+    {
         if (count($items) === 0) {
             throw new InvalidArgumentException('The order must contain at least one item.');
         }
@@ -79,7 +84,6 @@ class Order {
 
             $this->db->commit();
             return $orderId;
-
         } catch (Exception $e) {
             if ($this->db->inTransaction()) {
                 $this->db->rollBack();
