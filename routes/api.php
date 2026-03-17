@@ -1,53 +1,66 @@
 <?php
 
+require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../controllers/ClientController.php';
 require_once __DIR__ . '/../controllers/ProductController.php';
 require_once __DIR__ . '/../controllers/OrderController.php';
 
 header('Content-Type: application/json; charset=UTF-8');
 
+// Initialize database connection (Single Connection)
+$database = new Database();
+$db = $database->connect();
+
+// Initialize controllers with dependency injection
+$clients = new ClientController($db);
+$products = new ProductController($db);
+$orders = new OrderController($db);
+
 $method = $_SERVER['REQUEST_METHOD'];
 $uri    = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $uri    = rtrim($uri, '/');
 
-$clients = new ClientController();
-$products = new ProductController();
-$orders = new OrderController();
+// -- Home
+if ($method === 'GET' && $uri === '') {
+    http_response_code(200);
+    echo json_encode([
+        'message' => 'Bienvenido a HappyMami',
+        'version' => '1.0.0',
+        'endpoints' => [
+            'clients' => '/clients',
+            'products' => '/products',
+            'orders' => '/orders'
+        ]
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
 
 // -- Clients
 if ($method === 'GET' && preg_match('#^/clients$#', $uri)) {
     $clients->getClients();
-
 } elseif ($method === 'GET' && preg_match('#^/clients/(\d+)$#', $uri, $m)) {
     $clients->getClient((int) $m[1]);
-
 } elseif ($method === 'POST' && preg_match('#^/clients$#', $uri)) {
     $clients->createClient();
 
-// -- Products
+    // -- Products
 } elseif ($method === 'GET' && preg_match('#^/products$#', $uri)) {
     $products->getProducts();
-
 } elseif ($method === 'GET' && preg_match('#^/products/(\d+)$#', $uri, $m)) {
     $products->getProduct((int) $m[1]);
-
 } elseif ($method === 'POST' && preg_match('#^/products$#', $uri)) {
     $products->createProduct();
-
 } elseif ($method === 'PUT' && preg_match('#^/products/(\d+)$#', $uri, $m)) {
     $products->updateProduct((int) $m[1]);
 
-// -- Orders
+    // -- Orders
 } elseif ($method === 'GET' && preg_match('#^/orders$#', $uri)) {
     $orders->getOrders();
-
 } elseif ($method === 'GET' && preg_match('#^/orders/(\d+)$#', $uri, $m)) {
     $orders->getOrder((int) $m[1]);
-
 } elseif ($method === 'POST' && preg_match('#^/orders$#', $uri)) {
     $orders->createOrder();
-
 } else {
     http_response_code(404);
-    echo json_encode(['error' => 'Ruta no encontrada'], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['error' => 'Route not found'], JSON_UNESCAPED_UNICODE);
 }
